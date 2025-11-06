@@ -2,3 +2,5 @@ fastapi
 uvicorn
 whisper
 python-multipart
+gtts
+transformers

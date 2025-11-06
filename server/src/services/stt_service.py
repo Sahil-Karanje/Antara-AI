@@ -8,14 +8,12 @@ model = whisper.load_model("base")
 
 @app.post("/stt")
 async def transcribe(audio: UploadFile = File(...)):
-    # Create a temporary file (not auto-deleted)
-    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp:
+    tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+    try:
         tmp.write(await audio.read())
         tmp_path = tmp.name
-
-    # Now ffmpeg can access it safely
-    result = model.transcribe(tmp_path)
-
-    # Clean up manually
-    os.remove(tmp_path)
-    return {"text": result["text"]}
+        tmp.close()  # Close before ffmpeg uses it
+        result = model.transcribe(tmp_path)
+        return {"text": result["text"]}
+    finally:
+        os.remove(tmp_path)
