@@ -1,6 +1,8 @@
 fastapi
 uvicorn
-whisper
-python-multipart
+python-dotenv
+requests
 gtts
+torch
+whisper
 transformers

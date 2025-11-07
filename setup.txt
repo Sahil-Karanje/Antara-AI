@@ -1,0 +1,125 @@
+===========================
+A. SYSTEM SETUP (WINDOWS)
+===========================
+
+1️⃣  Install Python 3.10+  (from https://www.python.org/downloads/)
+    ✅ Check it works:  python --version
+
+2️⃣  Create a virtual environment:
+    python -m venv venv
+    venv\Scripts\activate
+
+3️⃣  Install dependencies:
+    pip install -r requirements.txt
+
+4️⃣  Install FFmpeg (for Whisper audio decoding)
+    - Download from: https://ffmpeg.org/download.html
+    - Add FFmpeg `bin` folder to your PATH.
+    ✅ Test:  ffmpeg -version
+
+5️⃣  Install Java (for LanguageTool if used later)
+    - Download from: https://adoptium.net/temurin/releases/
+    ✅ Test:  java -version
+
+6️⃣  Install Node.js (for your main backend)
+    - Download from: https://nodejs.org/en/download
+    ✅ Test:  node -v  &&  npm -v
+
+7️⃣  Install Ollama (local LLM runtime)
+    - Download from: https://ollama.com/download
+    - Once installed, run:
+      ollama serve
+    - In another terminal, pull model:
+      ollama pull gemma3:4b
+
+    ✅ Test the model:
+      ollama run gemma3:4b
+      (type something, check if it replies)
+
+
+===========================
+B. PROJECT SETUP
+===========================
+
+1️⃣  Clone your repo:
+    git clone <your_repo_url>
+    cd <project_folder>
+
+2️⃣  Create `.env` file in the root (same directory as your FastAPI files):
+    ```
+    OLLAMA_URL=http://localhost:11434
+    OLLAMA_MODEL=gemma3:4b
+    ```
+
+3️⃣  Start FastAPI services:
+
+    # Speech-to-Text (Whisper)
+    uvicorn stt_service:app --reload --port 5001
+
+    # Grammar/LLM (Ollama)
+    uvicorn grammar_service:app --reload --port 5003
+
+    # Text-to-Speech (gTTS)
+    uvicorn tts_service:app --reload --port 5002
+
+4️⃣  Start Node.js backend:
+    cd src/server
+    npm install
+    npm run dev
+
+5️⃣  Test endpoints individually (via Postman):
+
+    👉 STT:
+       POST http://localhost:5001/stt
+       form-data → key: audio, value: (upload .wav file)
+
+    👉 Grammar/LLM:
+       POST http://localhost:5003/grammar
+       form-data → text: "I win a match against a tough opponent."
+                     username: "Sahil"
+
+    👉 TTS:
+       POST http://localhost:5002/tts
+       form-data → text: "Hello Sahil, great job today!"
+
+6️⃣  To verify the conversation pipeline:
+    Use your Node controller (handleConversation.js)
+    It will internally call:
+      STT → Grammar (Ollama) → TTS
+
+
+===========================
+C. OPTIONAL AUTOMATION
+===========================
+
+👉 To make setup 1-click on Windows:
+   Create a file named `setup.bat` with:
+
+   @echo off
+   echo Activating virtual environment...
+   call venv\Scripts\activate
+   echo Installing Python dependencies...
+   pip install -r requirements.txt
+   echo Starting Ollama service...
+   start ollama serve
+   echo Pulling model gemma3:4b...
+   ollama pull gemma3:4b
+   echo Setup complete! ✅
+
+   pause
+
+
+===========================
+D. QUICK CHECKLIST
+===========================
+
+✅ Python installed  
+✅ FFmpeg installed  
+✅ Java (optional for LanguageTool)  
+✅ Node.js installed  
+✅ Ollama installed and model pulled  
+✅ FastAPI services running (5001–5003)  
+✅ Node backend running (5000)  
+✅ .env file present with OLLAMA_URL + OLLAMA_MODEL  
+
+===========================
